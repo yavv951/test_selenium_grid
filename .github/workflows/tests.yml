@@ -2,17 +2,12 @@ name: Run Selenium Tests
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ]
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    services:
-      selenium:
-        image: selenium/hub:4.21.0
-        ports:
-          - 4444:4444
 
     steps:
       - uses: actions/checkout@v3
@@ -22,14 +17,20 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install dependencies
+      - name: Install Python dependencies
         run: |
           pip install -r requirements.txt
 
-      - name: Run Docker Compose
+      - name: Install Docker Compose
+        run: |
+          curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
+          ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+
+      - name: Start Selenium Grid
         run: |
           docker-compose up -d
-          sleep 15  # ждём, пока Grid поднимется
+          sleep 15
 
       - name: Run tests
         run: |
