@@ -1,0 +1,39 @@
+name: Run Selenium Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      selenium:
+        image: selenium/hub:4.21.0
+        ports:
+          - 4444:4444
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run Docker Compose
+        run: |
+          docker-compose up -d
+          sleep 15  # ждём, пока Grid поднимется
+
+      - name: Run tests
+        run: |
+          pytest tests/test_google.py
+
+      - name: Tear down
+        run: docker-compose down
