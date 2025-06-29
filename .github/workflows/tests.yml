@@ -1,4 +1,4 @@
-name: Run Selenium Tests with Allure
+name: Run Selenium Tests and Publish Allure Report
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout project
         uses: actions/checkout@v3
 
       - name: Set up Python
@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install Python dependencies
+      - name: Install dependencies
         run: |
           pip install -r requirements.txt
           pip install allure-pytest
@@ -33,40 +33,18 @@ jobs:
           ./docker-compose up -d
           sleep 15
 
-      - name: Download previous report history (optional)
-        uses: actions/checkout@v3
-        with:
-          ref: gh-pages
-          path: gh-pages
-        continue-on-error: true
-
-      - name: Prepare history if exists
-        run: |
-          mkdir -p allure-results/history
-          cp -r gh-pages/history allure-results/ || true
-
       - name: Run tests with Allure
         run: |
           pytest --alluredir=allure-results
 
-      - name: Generate Allure report
+      - name: Generate Allure Report
         run: |
           curl -o allure-2.27.0.tgz -L https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
           tar -xzf allure-2.27.0.tgz
           ./allure-2.27.0/bin/allure generate allure-results -o allure-report --clean
 
-      - name: Upload Allure report
-        uses: actions/upload-artifact@v4
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: allure-report
-          path: allure-report
-
-      - name: Upload Allure history
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-history
-          path: allure-report/history
-
-      - name: Tear down
-        run: |
-          ./docker-compose down
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./allure-report
