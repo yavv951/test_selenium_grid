@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -32,22 +33,39 @@ jobs:
           ./docker-compose up -d
           sleep 15
 
+      - name: Download previous report history (optional)
+        uses: actions/checkout@v3
+        with:
+          ref: gh-pages
+          path: gh-pages
+        continue-on-error: true
+
+      - name: Prepare history if exists
+        run: |
+          mkdir -p allure-results/history
+          cp -r gh-pages/history allure-results/ || true
+
       - name: Run tests with Allure
         run: |
-          pytest --alluredir=allure-results tests/
+          pytest --alluredir=allure-results
 
       - name: Generate Allure report
         run: |
-          mkdir -p allure-report
           curl -o allure-2.27.0.tgz -L https://github.com/allure-framework/allure2/releases/download/2.27.0/allure-2.27.0.tgz
           tar -xzf allure-2.27.0.tgz
           ./allure-2.27.0/bin/allure generate allure-results -o allure-report --clean
 
-      - name: Upload Allure report as artifact
-        uses: actions/upload-artifact@v3
+      - name: Upload Allure report
+        uses: actions/upload-artifact@v4
         with:
           name: allure-report
           path: allure-report
+
+      - name: Upload Allure history
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-history
+          path: allure-report/history
 
       - name: Tear down
         run: |
