@@ -1,0 +1,3 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"passed","Sun Jun 29 23:38:39 UTC 2025","Sun Jun 29 23:38:39 UTC 2025","648","tests","test_google","","","","Проверка заголовка Google",""
+"passed","Sun Jun 29 23:38:36 UTC 2025","Sun Jun 29 23:38:37 UTC 2025","572","tests","test_google","","","","Проверка заголовка Google",""
