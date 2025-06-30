@@ -14,7 +14,7 @@ def test_google_title(driver):
 @allure.title("Проверка заголовка Not Google")
 @allure.severity(allure.severity_level.CRITICAL)
 @pytest.mark.parametrize("driver", ["chrome", "firefox"], indirect=True)
-def test_google_title(driver):
+def test_negative_google_title(driver):
     with allure.step("Открываем Google"):
         driver.get("https://www.google.com")
 
